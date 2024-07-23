@@ -46,6 +46,7 @@ public class Usuario {
 
 	public void alteraStatusFoco(UUID idUsuario) {
 		validaUsuario(idUsuario);
+		this.status = StatusUsuario.FOCO;
 		verificaStatusAtual();
 		
 	}
