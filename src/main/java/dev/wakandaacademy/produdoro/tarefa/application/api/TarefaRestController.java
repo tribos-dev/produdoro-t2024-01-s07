@@ -2,6 +2,8 @@ package dev.wakandaacademy.produdoro.tarefa.application.api;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +42,14 @@ public class TarefaRestController implements TarefaAPI {
 		String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
 		log.info("[usuario] {}", usuario);
 		return usuario;
+	}
+
+	@Override
+	public void alteraTarefa(String token, EditaTarefaRequest tarefaRequest, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - alteraTarefa");
+		String usuario = getUsuarioByToken(token);
+		tarefaService.alteraTarefa(usuario,tarefaRequest,idTarefa);
+		log.info("[finaliza] TarefaRestController - alteraTarefa");		
 	}
 
 }
