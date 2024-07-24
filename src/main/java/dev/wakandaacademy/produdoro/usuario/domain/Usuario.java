@@ -52,6 +52,14 @@ public class Usuario {
 
 	public void mudaStatusPausaCurta(UUID idUsuario) {
 		pertenceAoUsuario(idUsuario);
+		validaStatusPausaCurta();
 		this.status = StatusUsuario.PAUSA_CURTA;
+	}
+
+	private void validaStatusPausaCurta() {
+		if(this.status.equals(StatusUsuario.PAUSA_CURTA)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Curta!");
+		}
+		
 	}
 }
