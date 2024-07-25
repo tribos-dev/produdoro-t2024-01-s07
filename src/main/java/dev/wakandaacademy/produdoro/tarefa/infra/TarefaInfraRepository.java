@@ -1,16 +1,18 @@
 package dev.wakandaacademy.produdoro.tarefa.infra;
 
-import dev.wakandaacademy.produdoro.handler.APIException;
-import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
-import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
+import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
+import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 @Repository
 @Log4j2
@@ -30,6 +32,7 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - salva");
         return tarefa;
     }
+    
     @Override
     public Optional<Tarefa> buscaTarefaPorId(UUID idTarefa) {
         log.info("[inicia] TarefaInfraRepository - buscaTarefaPorId");
@@ -37,4 +40,14 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - buscaTarefaPorId");
         return tarefaPorId;
     }
+    
+	@Override
+	public Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario) {
+		log.info("[inicia] TarefaInfraRepository - buscaTarefaJaAtiva");
+		Optional<Tarefa> tarefaJaAtiva = 
+				tarefaSpringMongoDBRepository.buscaTarefaJaAtiva(StatusAtivacaoTarefa.ATIVA, idUsuario);
+		log.info("[finaliza] TarefaInfraRepository - buscaTarefaJaAtiva");
+		return tarefaJaAtiva;
+	}
+	
 }
