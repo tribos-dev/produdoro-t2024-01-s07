@@ -40,4 +40,13 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
     }
+	@Override
+	public void deletaTarefasConcluidas(String email, UUID idUsuario) {
+		log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
+		Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(email);
+		Usuario usuario = usuarioRepository.buscaUsuarioPorId(idUsuario);
+		usuario.pertenceAoUsuario(usuarioPorEmail);
+        log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");	
+		
+	}
 }
