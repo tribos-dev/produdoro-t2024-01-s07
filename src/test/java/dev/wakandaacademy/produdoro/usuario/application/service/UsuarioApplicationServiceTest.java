@@ -33,12 +33,8 @@ class UsuarioApplicationServiceTest {
 	@Test
 	void deveMudarParaFoco() {
 		Usuario usuario = DataHelper.createUsuario();
-		//UUID idUsuario = UUID.fromString("a713162f-20a9-4db9-a85b-90cd51ab18f4");
 		when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
-		//when(usuarioRepository.buscaUsuarioPorId(idUsuario)).thenReturn(usuario);
-		
 		usuarioApplicationService.mudaStatusFoco(usuario.getEmail(), usuario.getIdUsuario());
-		
 		verify(usuarioRepository, times(1)).salva(any());
 	}
 	
