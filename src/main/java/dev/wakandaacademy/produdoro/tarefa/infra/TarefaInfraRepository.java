@@ -3,9 +3,16 @@ package dev.wakandaacademy.produdoro.tarefa.infra;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
+import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +25,8 @@ import java.util.UUID;
 public class TarefaInfraRepository implements TarefaRepository {
 
     private final TarefaSpringMongoDBRepository tarefaSpringMongoDBRepository;
+    private final MongoTemplate mongoTemplate;
+    private Integer contagemPomodoroPausaCurta = 0;
 
     @Override
     public Tarefa salva(Tarefa tarefa) {
@@ -39,7 +48,26 @@ public class TarefaInfraRepository implements TarefaRepository {
     }
 
     @Override
-    public void processaStatusEContadorPomodoro(String usuario) {
+    public void processaStatusEContadorPomodoro(Usuario usuario) {
+        log.info("[start] TarefaInfraRepository - processaStatusEContadorPomodoro");
+        if (usuario.getStatus().equals(StatusUsuario.FOCO)) {
+            if (this.contagemPomodoroPausaCurta < 3) {
+                usuario.mudaStatusPausaCurta();
+            } else {
+                usuario.mudaStatusParaPausaLonga();
+                this.contagemPomodoroPausaCurta = 0;
+            }
+        } else {
+            usuario.alteraStatusParaFoco(usuario.getIdUsuario());
+            this.contagemPomodoroPausaCurta++;
+        }
+        salvarStatusUsuario(usuario);
+    }
 
+    private void salvarStatusUsuario(Usuario usuario) {
+        Query query = Query.query(Criteria.where("idUsuario").is(usuario.getIdUsuario()));
+        Update updateUsuario = Update.update("status", usuario.getStatus());
+        mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
+        log.info("[finish] TarefaInfraRepository - processaStatusEContadorPomodoro");
     }
 }

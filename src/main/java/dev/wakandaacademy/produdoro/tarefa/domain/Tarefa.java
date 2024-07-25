@@ -58,7 +58,7 @@ public class Tarefa {
 	}
 
 	public void incrementaPomodoro(Usuario usuario) {
-		if (usuario.getStatus().equals(StatusUsuario.FOCO) && statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+		if (usuario.getStatus().equals(StatusUsuario.FOCO)) {
 			this.contagemPomodoro++;
 		}
 
