@@ -49,7 +49,7 @@ public class TarefaInfraRepository implements TarefaRepository {
 
     @Override
     public void processaStatusEContadorPomodoro(Usuario usuario) {
-        log.info("[start] TarefaInfraRepository - processaStatusEContadorPomodoro");
+        log.info("[inicia] TarefaInfraRepository - processaStatusEContadorPomodoro");
         if (usuario.getStatus().equals(StatusUsuario.FOCO)) {
             if (this.contagemPomodoroPausaCurta < 3) {
                 usuario.mudaStatusPausaCurta();
@@ -62,12 +62,12 @@ public class TarefaInfraRepository implements TarefaRepository {
             this.contagemPomodoroPausaCurta++;
         }
         salvarStatusUsuario(usuario);
+        log.info("[finaliza] TarefaInfraRepository - processaStatusEContadorPomodoro");
     }
 
     private void salvarStatusUsuario(Usuario usuario) {
         Query query = Query.query(Criteria.where("idUsuario").is(usuario.getIdUsuario()));
         Update updateUsuario = Update.update("status", usuario.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
-        log.info("[finish] TarefaInfraRepository - processaStatusEContadorPomodoro");
     }
 }

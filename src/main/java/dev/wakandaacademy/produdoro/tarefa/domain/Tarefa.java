@@ -57,8 +57,8 @@ public class Tarefa {
 		}
 	}
 
-	public void incrementaPomodoro(Usuario usuario) {
-		if (usuario.getStatus().equals(StatusUsuario.FOCO)) {
+	public void incrementaPomodoro(Usuario usuarioPorEmail) {
+		if (usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO)) {
 			this.contagemPomodoro++;
 		}
 
