@@ -9,5 +9,6 @@ public interface UsuarioService {
 	UsuarioCriadoResponse criaNovoUsuario(UsuarioNovoRequest usuarioNovo);
     UsuarioCriadoResponse buscaUsuarioPorId(UUID idUsuario);
 	void mudaStatusFoco(String usuario, UUID idUsuario);
-
+	void mudaStatusParaPausaCurta(String email, UUID idUsuario);
+    void mudaStatusParaPausaLonga(String email, UUID idUsuario);
 }
