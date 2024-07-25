@@ -33,4 +33,9 @@ public interface TarefaAPI {
     		@RequestBody @Valid EditaTarefaRequest tarefaRequest, @PathVariable UUID idTarefa);
 
 
+    @PatchMapping("/{idTarefa}/ativa")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void defineTarefaComoAtiva(@PathVariable UUID idTarefa, 
+    		@RequestHeader(name = "Authorization", required = true) String token);
+    
 }

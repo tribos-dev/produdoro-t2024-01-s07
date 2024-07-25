@@ -52,12 +52,25 @@ public class Tarefa {
 	}
 
 	public void pertenceAoUsuario(Usuario usuarioPorEmail) {
-		if(!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
+		if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
 		}
 	}
 
 	public void altera(EditaTarefaRequest tarefaRequest) {
-		this.descricao = tarefaRequest.getDescricao();		
+		this.descricao = tarefaRequest.getDescricao();
 	}
+
+	public void defineTarefaComoInativa() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+			this.statusAtivacao = StatusAtivacaoTarefa.INATIVA;
+		}
+	}
+
+	public void defineTarefaComoAtiva() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.INATIVA)) {
+			this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
+		}
+	}
+
 }
