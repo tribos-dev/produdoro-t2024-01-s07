@@ -63,4 +63,18 @@ public class Tarefa {
 		}
 
 	}
+
+	public void defineTarefaComoInativa() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+			this.statusAtivacao = StatusAtivacaoTarefa.INATIVA;
+		}
+	}
+	
+	public void defineTarefaComoAtiva() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.INATIVA)) {
+			this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
+		}
+	}
+	
 }
+

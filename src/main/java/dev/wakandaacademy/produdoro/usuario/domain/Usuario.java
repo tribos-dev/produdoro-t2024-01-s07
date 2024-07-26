@@ -1,23 +1,16 @@
 package dev.wakandaacademy.produdoro.usuario.domain;
 
-import java.util.UUID;
-
-import javax.validation.constraints.Email;
-
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.pomodoro.domain.ConfiguracaoPadrao;
+import dev.wakandaacademy.produdoro.usuario.application.api.UsuarioNovoRequest;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import dev.wakandaacademy.produdoro.pomodoro.domain.ConfiguracaoPadrao;
-import dev.wakandaacademy.produdoro.usuario.application.api.UsuarioNovoRequest;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.http.HttpStatus;
+
+import javax.validation.constraints.Email;
+import java.util.UUID;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,16 +37,8 @@ public class Usuario {
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
 
-	public void mudaStatusPausaCurta() {
-		this.status = StatusUsuario.PAUSA_CURTA;
-	}
-
-	public void mudaStatusParaPausaLonga() {
-		this.status = StatusUsuario.PAUSA_LONGA;
-	}
-
 	public void alteraStatusParaFoco(UUID idUsuario) {
-		validaUsuario(idUsuario);
+		pertenceAoUsuario(idUsuario);
 		verificaStatusAtual();
 	}
 
@@ -68,9 +53,35 @@ public class Usuario {
 		this.status = StatusUsuario.FOCO;
 	}
 
-	private void validaUsuario(UUID idUsuario) {
-			if (!this.idUsuario.equals(idUsuario)) {
-				throw APIException.build(HttpStatus.UNAUTHORIZED, "Credencial de autenticação não é válida");
-			}
+	private void pertenceAoUsuario(UUID idUsuario) {
+		if(!this.idUsuario.equals(idUsuario)) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED, "Credencial de autenticação não é válida!");
+		}
+	}
+
+	public void mudaStatusPausaCurta(UUID idUsuario) {
+		pertenceAoUsuario(idUsuario);
+		validaStatusPausaCurta();
+		this.status = StatusUsuario.PAUSA_CURTA;
+	}
+
+	private void validaStatusPausaCurta() {
+		if(this.status.equals(StatusUsuario.PAUSA_CURTA)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Curta!");
+		}
+
+	}
+
+	public void mudaStatusPausaLonga(UUID idUsuario) {
+		pertenceAoUsuario(idUsuario);
+		validaStatusPausaLonga();
+		this.status = StatusUsuario.PAUSA_LONGA;
+	}
+
+	private void validaStatusPausaLonga() {
+		if(this.status.equals(StatusUsuario.PAUSA_LONGA)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Longa!");
+		}
 	}
 }
+

@@ -2,13 +2,13 @@ package dev.wakandaacademy.produdoro.tarefa.infra;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+
 
 @Repository
 @Log4j2
@@ -39,6 +40,7 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - salva");
         return tarefa;
     }
+    
     @Override
     public Optional<Tarefa> buscaTarefaPorId(UUID idTarefa) {
         log.info("[inicia] TarefaInfraRepository - buscaTarefaPorId");
@@ -52,9 +54,9 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[inicia] TarefaInfraRepository - processaStatusEContadorPomodoro");
         if (usuario.getStatus().equals(StatusUsuario.FOCO)) {
             if (this.contagemPomodoroPausaCurta < 3) {
-                usuario.mudaStatusPausaCurta();
+                usuario.mudaStatusPausaCurta(usuario.getIdUsuario());
             } else {
-                usuario.mudaStatusParaPausaLonga();
+                usuario.mudaStatusPausaLonga(usuario.getIdUsuario());
                 this.contagemPomodoroPausaCurta = 0;
             }
         } else {
@@ -70,4 +72,13 @@ public class TarefaInfraRepository implements TarefaRepository {
         Update updateUsuario = Update.update("status", usuario.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
     }
+    
+	@Override
+	public Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario) {
+		log.info("[inicia] TarefaInfraRepository - buscaTarefaJaAtiva");
+		Optional<Tarefa> tarefaJaAtiva = 
+				tarefaSpringMongoDBRepository.buscaTarefaJaAtiva(StatusAtivacaoTarefa.ATIVA, idUsuario);
+		log.info("[finaliza] TarefaInfraRepository - buscaTarefaJaAtiva");
+		return tarefaJaAtiva;
+	}
 }
