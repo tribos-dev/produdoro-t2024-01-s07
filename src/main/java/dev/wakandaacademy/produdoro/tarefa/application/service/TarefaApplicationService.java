@@ -40,4 +40,24 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
     }
+
+    private Tarefa detalhaTarefaBadRequest(String usuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - detalhaTarefa");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        log.info("[usuarioPorEmail] {}", usuarioPorEmail);
+        Tarefa tarefa =
+                tarefaRepository.buscaTarefaPorId(idTarefa).orElseThrow(() -> APIException.build(HttpStatus.BAD_REQUEST, "Tarefa não encontrada!"));
+        tarefa.pertenceAoUsuario(usuarioPorEmail);
+        log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
+        return tarefa;
+    }
+
+    @Override
+    public void concluiTarefa(String usuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - concluiTarefa");
+        Tarefa tarefa = detalhaTarefaBadRequest(usuario, idTarefa);
+        tarefa.concluiTarefa();
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - concluiTarefa");
+    }
 }
