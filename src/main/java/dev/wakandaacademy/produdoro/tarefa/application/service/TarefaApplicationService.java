@@ -61,7 +61,7 @@ public class TarefaApplicationService implements TarefaService {
     public List<TarefaDetalhadoResponse> visualizaTodasAsTarefas(String usuario, UUID idUsuario) {
         log.info("[inicial] - TarefaApplicationService - visualizaTodasAsTarefas");
         Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
-        usuarioPorEmail.validaUsuario(idUsuario);
+        usuarioPorEmail.validaUsuarioDaTarefa(idUsuario);
         List<Tarefa> tarefas = tarefaRepository.visualizaTodasAsTarefa(idUsuario);
         log.info("[finaliza] - TarefaApplicationService - visualizaTodasAsTarefas");
         return TarefaDetalhadoResponse.converte(tarefas);

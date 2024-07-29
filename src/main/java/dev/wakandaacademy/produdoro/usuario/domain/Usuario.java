@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +36,7 @@ public class Usuario {
 	private StatusUsuario status = StatusUsuario.FOCO;
 	@Builder.Default
 	private Integer quantidadePomodorosPausaCurta = 0;
-	
+
 	public Usuario(UsuarioNovoRequest usuarioNovo, ConfiguracaoPadrao configuracaoPadrao) {
 		this.idUsuario = UUID.randomUUID();
 		this.email = usuarioNovo.getEmail();
@@ -60,14 +59,15 @@ public class Usuario {
 	private void mudaStatusParaFoco() {
 		this.status = StatusUsuario.FOCO;
 	}
-    public void validaUsuario(UUID idUsuario) {
-		if(!this.idUsuario.equals(idUsuario)) {
+
+	public void validaUsuarioDaTarefa(UUID idUsuario) {
+		if (!this.idUsuario.equals(idUsuario)) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
 		}
 	}
 
 	private void pertenceAoUsuario(UUID idUsuario) {
-		if(!this.idUsuario.equals(idUsuario)) {
+		if (!this.idUsuario.equals(idUsuario)) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Credencial de autenticação não é válida!");
 		}
 	}
@@ -79,10 +79,9 @@ public class Usuario {
 	}
 
 	private void validaStatusPausaCurta() {
-		if(this.status.equals(StatusUsuario.PAUSA_CURTA)) {
+		if (this.status.equals(StatusUsuario.PAUSA_CURTA)) {
 			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Curta!");
 		}
-
 	}
 
 	public void mudaStatusPausaLonga(UUID idUsuario) {
@@ -92,7 +91,7 @@ public class Usuario {
 	}
 
 	private void validaStatusPausaLonga() {
-		if(this.status.equals(StatusUsuario.PAUSA_LONGA)) {
+		if (this.status.equals(StatusUsuario.PAUSA_LONGA)) {
 			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Longa!");
 		}
 	}
