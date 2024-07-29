@@ -128,6 +128,21 @@ class TarefaApplicationServiceTest {
 		verify(tarefaRepository, never()).salva(any(Tarefa.class));
 	}
 
+	@Test
+	void deveIcrementarPomodoroAUmaTarefa() {
+
+		Usuario usuario = DataHelper.createUsuario();
+		Tarefa tarefa = DataHelper.createTarefa();
+
+		when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+		when(tarefaRepository.buscaTarefaPorId(any(UUID.class))).thenReturn(Optional.of(tarefa));
+
+		tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa());
+
+		verify(tarefaRepository, times(1)).salva(any(Tarefa.class));
+		verify(tarefaRepository, times(1)).processaStatusEContadorPomodoro(usuario);
+	}
+
 	private static Tarefa getTarefaAtiva(Usuario usuario) {
 		return Tarefa.builder().contagemPomodoro(1).idTarefa(UUID.fromString("4c70c27a-446c-4506-b666-1067085d8d85"))
 				.idUsuario(usuario.getIdUsuario()).descricao("Descricao da tarefa")

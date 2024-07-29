@@ -24,12 +24,19 @@ import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioApplicationServiceTest {
-	
 	@InjectMocks
-	private UsuarioApplicationService usuarioApplicationService;
+	UsuarioApplicationService usuarioApplicationService;
 	
 	@Mock
-	private UsuarioRepository usuarioRepository;
+	UsuarioRepository usuarioRepository;
+	
+	@Test
+	void deveMudarParaFoco() {
+		Usuario usuario = DataHelper.createUsuario();
+		when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+		usuarioApplicationService.mudaStatusFoco(usuario.getEmail(), usuario.getIdUsuario());
+		verify(usuarioRepository, times(1)).salva(any());
+	}
 	
 	@Test
 	void deveMudarStatusParaPausaCurta () {
