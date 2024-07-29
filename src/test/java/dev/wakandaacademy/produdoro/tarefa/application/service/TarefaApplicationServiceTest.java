@@ -1,8 +1,6 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
@@ -40,9 +38,9 @@ class TarefaApplicationServiceTest {
     //	@MockBean
     @Mock
     TarefaRepository tarefaRepository;
-    
-	@Mock
-	UsuarioRepository usuarioRepository;
+
+    @Mock
+    UsuarioRepository usuarioRepository;
 
     @Test
     void deveRetornarIdTarefaNovaCriada() {
@@ -60,48 +58,77 @@ class TarefaApplicationServiceTest {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
         return request;
     }
-    
-	@Test
-	@DisplayName("Deve definir a tarefa do usuário como ativa.")
-	void deveDefinirTarefaComoAtiva() {
-		//Dado
-		Usuario usuario = DataHelper.createUsuario();
-		Tarefa tarefa = DataHelper.createTarefa();
-		Tarefa tarefaAtiva = getTarefaAtiva(usuario);
-		//Quando
-		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
-		when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
-		when(tarefaRepository.buscaTarefaJaAtiva(usuario.getIdUsuario())).thenReturn(Optional.ofNullable(tarefaAtiva));
-		tarefaApplicationService.defineTarefaComoAtiva(tarefa.getIdTarefa(), String.valueOf(usuario.getEmail()));
-		//Entao
-		verify(tarefaRepository, times(1)).salva(tarefa);
-		verify(tarefaRepository, times(1)).buscaTarefaJaAtiva(usuario.getIdUsuario());
-		verify(tarefaRepository, times(1)).salva(tarefa);
-	}
 
-	@Test
-	@DisplayName("Não deve definir a tarefa do usuário como ativa.")
-	void nãoDeveDefinirTarefaComoAtiva() {
-		//Dado
-		Usuario usuario = DataHelper.createUsuario();
-		UUID idTarefaInvalido = UUID.randomUUID();
-		//Quando
-		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
-		when(tarefaRepository.buscaTarefaPorId(idTarefaInvalido))
-			.thenThrow(APIException.build(HttpStatus.NOT_FOUND, "Id da Tarefa inválido!"));
-		APIException e = assertThrows(APIException.class, () -> {
-			tarefaApplicationService.defineTarefaComoAtiva(idTarefaInvalido, String.valueOf(usuario.getEmail()));
-		});
-		//Entao
-		assertEquals(HttpStatus.NOT_FOUND, e.getStatusException());
-		verify(tarefaRepository, never()).buscaTarefaJaAtiva(usuario.getIdUsuario());
-		verify(tarefaRepository, never()).salva(any(Tarefa.class));
-	}
+    @Test
+    @DisplayName("Deve definir a tarefa do usuário como ativa.")
+    void deveDefinirTarefaComoAtiva() {
+        //Dado
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+        Tarefa tarefaAtiva = getTarefaAtiva(usuario);
+        //Quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.buscaTarefaJaAtiva(usuario.getIdUsuario())).thenReturn(Optional.ofNullable(tarefaAtiva));
+        tarefaApplicationService.defineTarefaComoAtiva(tarefa.getIdTarefa(), String.valueOf(usuario.getEmail()));
+        //Entao
+        verify(tarefaRepository, times(1)).salva(tarefa);
+        verify(tarefaRepository, times(1)).buscaTarefaJaAtiva(usuario.getIdUsuario());
+        verify(tarefaRepository, times(1)).salva(tarefa);
+    }
 
-	private static Tarefa getTarefaAtiva(Usuario usuario) {
-		return Tarefa.builder().contagemPomodoro(1).idTarefa(UUID.fromString("4c70c27a-446c-4506-b666-1067085d8d85"))
-				.idUsuario(usuario.getIdUsuario()).descricao("Descricao da tarefa")
-				.statusAtivacao(StatusAtivacaoTarefa.ATIVA).build();
-	}    
-    
+    @Test
+    @DisplayName("Não deve definir a tarefa do usuário como ativa.")
+    void nãoDeveDefinirTarefaComoAtiva() {
+        //Dado
+        Usuario usuario = DataHelper.createUsuario();
+        UUID idTarefaInvalido = UUID.randomUUID();
+        //Quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(idTarefaInvalido))
+                .thenThrow(APIException.build(HttpStatus.NOT_FOUND, "Id da Tarefa inválido!"));
+        APIException e = assertThrows(APIException.class, () -> {
+            tarefaApplicationService.defineTarefaComoAtiva(idTarefaInvalido, String.valueOf(usuario.getEmail()));
+        });
+        //Entao
+        assertEquals(HttpStatus.NOT_FOUND, e.getStatusException());
+        verify(tarefaRepository, never()).buscaTarefaJaAtiva(usuario.getIdUsuario());
+        verify(tarefaRepository, never()).salva(any(Tarefa.class));
+    }
+
+    private static Tarefa getTarefaAtiva(Usuario usuario) {
+        return Tarefa.builder().contagemPomodoro(1).idTarefa(UUID.fromString("4c70c27a-446c-4506-b666-1067085d8d85"))
+                .idUsuario(usuario.getIdUsuario()).descricao("Descricao da tarefa")
+                .statusAtivacao(StatusAtivacaoTarefa.ATIVA).build();
+    }
+
+    @Test
+    void deveDeletarTarefa() {
+        // Dado
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+
+        // Quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.of(tarefa));
+        tarefaApplicationService.deletaTarefa(tarefa.getIdTarefa(), usuario.getEmail());
+
+        // Entao
+        verify(tarefaRepository, times(1)).deletaTarefa(tarefa);
+    }
+
+    @Test
+    void naoDeveDeletarTarefa_QuandoPassarIdTarefaInvalido() {
+        UUID idTarefa = UUID.randomUUID();
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+        String emailUsuario = "Arthur@gmail.com";
+
+        APIException exception = assertThrows(APIException.class, () -> {
+            tarefaApplicationService.deletaTarefa(idTarefa, usuario.getEmail());
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+        assertNotEquals(emailUsuario, usuario.getEmail());
+        assertNotEquals(idTarefa, tarefa.getIdTarefa());
+    }
 }
