@@ -1,13 +1,9 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoDaTarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaListResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
@@ -15,6 +11,12 @@ import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioReposi
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Log4j2
@@ -61,7 +63,28 @@ public class TarefaApplicationService implements TarefaService {
 		tarefaRepository.salva(tarefa);		
 		log.info("[finaliza] TarefaApplicationService - defineTarefaComoAtiva");
 	}
-	
+
+	@Override
+	public void mudaOrdemDaTarefa(String emailDoUsuario, UUID idTarefa,
+								  NovaPosicaoDaTarefaRequest novaPosicaoDaTarefaRequest) {
+		log.info("[inicia] TarefaApplicationService - mudaOrdemDatarefa");
+		Tarefa tarefa = detalhaTarefa(emailDoUsuario, idTarefa);
+		List<Tarefa> tarefas = tarefaRepository.buscarTodasTarefasPorIdUsuario(tarefa.getIdUsuario());
+		tarefaRepository.defineNovaPosicaoDaTarefa(tarefa, tarefas, novaPosicaoDaTarefaRequest);
+		log.info("[finaliza] TarefaApplicationService - mudaOrdemDatarefa");
+	}
+
+	@Override
+	public List<TarefaListResponse> buscarTodasTarefas(String usuario, UUID idUsuario) {
+		log.info("[inicia] TarefaApplicationService - buscarTodasTarefas");
+		Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+		usuarioRepository.buscaUsuarioPorId(idUsuario);
+		usuarioPorEmail.validaUsuario(idUsuario);
+		List<Tarefa> tarefas = tarefaRepository.buscarTodasTarefasPorIdUsuario(idUsuario);
+		log.info("[finaliza] TarefaApplicationService - buscarTodasTarefas");
+		return TarefaListResponse.converter(tarefas);
+	}
+
 	private Tarefa validarTarefa (UUID idTarefa, Usuario usuarioPorEmail) {
 		Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
 				.orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id da Tarefa inválido!"));
