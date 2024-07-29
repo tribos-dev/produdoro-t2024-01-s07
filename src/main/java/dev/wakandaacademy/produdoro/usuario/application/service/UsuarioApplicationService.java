@@ -57,7 +57,7 @@ public class UsuarioApplicationService implements UsuarioService {
 		log.info("[inicia] UsuarioApplicationService - mudaStatusFoco");
 		Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(usuarioEmail);
 		usuarioRepository.buscaUsuarioPorId(idUsuario);
-		usuario.alteraStatusFoco(idUsuario);
+		usuario.alteraStatusParaFoco(idUsuario);
 		usuarioRepository.salva(usuario);
 		log.info("[finaliza] UsuarioApplicationService - mudaStatusFoco");	
 	}
