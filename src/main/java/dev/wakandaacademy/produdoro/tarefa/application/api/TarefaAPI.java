@@ -29,6 +29,11 @@ public interface TarefaAPI {
     @ResponseStatus(code = HttpStatus.OK)
     TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization",required = true) String token,
     		@PathVariable UUID idTarefa);
+    
+    @PatchMapping("/edita-tarefa/{idTarefa}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void alteraTarefa(@RequestHeader(name = "Authorization",required = true) String token, 
+    		@RequestBody @Valid EditaTarefaRequest tarefaRequest, @PathVariable UUID idTarefa);
 
     @PatchMapping("/{idTarefa}/incrementa-pomodoro")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
@@ -48,5 +53,4 @@ public interface TarefaAPI {
     void defineTarefaComoAtiva(@PathVariable UUID idTarefa, 
     		@RequestHeader(name = "Authorization", required = true) String token);
     
-
 }

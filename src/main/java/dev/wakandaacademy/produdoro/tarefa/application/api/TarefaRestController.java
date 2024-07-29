@@ -3,6 +3,8 @@ package dev.wakandaacademy.produdoro.tarefa.application.api;
 import java.util.List;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +22,7 @@ public class TarefaRestController implements TarefaAPI {
 	private final TarefaService tarefaService;
 	private final TokenService tokenService;
 
+	@Override
 	public TarefaIdResponse postNovaTarefa(TarefaRequest tarefaRequest) {
 		log.info("[inicia]  TarefaRestController - postNovaTarefa  ");
 		TarefaIdResponse tarefaCriada = tarefaService.criaNovaTarefa(tarefaRequest);
@@ -31,7 +34,7 @@ public class TarefaRestController implements TarefaAPI {
 	public TarefaDetalhadoResponse detalhaTarefa(String token, UUID idTarefa) {
 		log.info("[inicia] TarefaRestController - detalhaTarefa");
 		String usuario = getUsuarioByToken(token);
-		Tarefa tarefa = tarefaService.detalhaTarefa(usuario,idTarefa);
+		Tarefa tarefa = tarefaService.detalhaTarefa(usuario, idTarefa);
 		log.info("[finaliza] TarefaRestController - detalhaTarefa");
 		return new TarefaDetalhadoResponse(tarefa);
 	}
@@ -58,6 +61,14 @@ public class TarefaRestController implements TarefaAPI {
 				.orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
 		log.info("[usuario] {}", usuario);
 		return usuario;
+	}
+
+	@Override
+	public void alteraTarefa(String token, EditaTarefaRequest tarefaRequest, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - alteraTarefa");
+		String usuario = getUsuarioByToken(token);
+		tarefaService.alteraTarefa(usuario, tarefaRequest, idTarefa);
+		log.info("[finaliza] TarefaRestController - alteraTarefa");
 	}
 
 	@Override

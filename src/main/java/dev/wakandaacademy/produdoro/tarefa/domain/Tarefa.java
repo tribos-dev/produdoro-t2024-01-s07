@@ -1,6 +1,8 @@
 package dev.wakandaacademy.produdoro.tarefa.domain;
+
 import java.util.UUID;
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.EditaTarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -56,8 +58,13 @@ public class Tarefa {
 		}
 	}
 
+	public void altera(EditaTarefaRequest tarefaRequest) {
+		this.descricao = tarefaRequest.getDescricao();
+	}
+
 	public void incrementaPomodoro(Usuario usuarioPorEmail) {
-		if (usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO) && statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+		if (usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO)
+				&& statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
 			this.contagemPomodoro++;
 		}
 
@@ -68,17 +75,17 @@ public class Tarefa {
 		this.status = StatusTarefa.CONCLUIDA;
 		log.info("[finaliza] Tarefa - concluiTarefa");
 	}
+
 	public void defineTarefaComoInativa() {
 		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
 			this.statusAtivacao = StatusAtivacaoTarefa.INATIVA;
 		}
 	}
-	
+
 	public void defineTarefaComoAtiva() {
 		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.INATIVA)) {
 			this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
 		}
 	}
-	
-}
 
+}

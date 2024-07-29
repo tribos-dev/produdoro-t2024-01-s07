@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 
 import dev.wakandaacademy.produdoro.DataHelper;
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.EditaTarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -60,6 +61,34 @@ class TarefaApplicationServiceTest {
     public TarefaRequest getTarefaRequest() {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
         return request;
+    }
+    
+    @Test
+    void deveEditarTarefa() {
+    	//Dado
+    	Usuario usuario = DataHelper.createUsuario();
+    	Tarefa tarefa = DataHelper.createTarefa();
+    	EditaTarefaRequest request = DataHelper.getEditaTarefaRequest();
+    	//Quando
+    	when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+    	when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.of(tarefa));
+    	tarefaApplicationService.alteraTarefa(usuario.getEmail(), request, tarefa.getIdTarefa());
+    	//Entao
+    	verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(usuario.getEmail());
+    	verify(tarefaRepository, times(1)).buscaTarefaPorId(tarefa.getIdTarefa());
+    	verify(tarefaRepository, times(1)).salva(tarefa);
+    	assertEquals("descricao2", tarefa.getDescricao());
+    }
+    
+    @Test
+    void naoDeveEditarTarefa() {
+    	UUID idTarefaInvalido = UUID.randomUUID();
+    	String usuario = "thalita";
+    	EditaTarefaRequest request = DataHelper.getEditaTarefaRequest();
+    	when(tarefaRepository.buscaTarefaPorId(idTarefaInvalido)).thenReturn(Optional.empty());
+    	assertThrows(APIException.class, 
+    			()-> tarefaApplicationService.alteraTarefa(usuario, request, idTarefaInvalido));
+    	verify(tarefaRepository, times(1)).buscaTarefaPorId(idTarefaInvalido);    	
     }
     
 	@Test
