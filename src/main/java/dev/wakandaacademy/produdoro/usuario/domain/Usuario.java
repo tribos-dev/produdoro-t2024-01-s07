@@ -8,7 +8,9 @@ import dev.wakandaacademy.produdoro.handler.APIException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.http.HttpStatus;
 
+import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.pomodoro.domain.ConfiguracaoPadrao;
 import dev.wakandaacademy.produdoro.usuario.application.api.UsuarioNovoRequest;
 import lombok.AccessLevel;
@@ -47,6 +49,37 @@ public class Usuario {
     public void validaUsuario(UUID idUsuario) {
 		if(!this.idUsuario.equals(idUsuario)) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
+		}
+	}
+
+	private void pertenceAoUsuario(UUID idUsuario) {
+		if(!this.idUsuario.equals(idUsuario)) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED, "Credencial de autenticação não é válida!");
+		}
+	}
+
+	public void mudaStatusPausaCurta(UUID idUsuario) {
+		pertenceAoUsuario(idUsuario);
+		validaStatusPausaCurta();
+		this.status = StatusUsuario.PAUSA_CURTA;
+	}
+
+	private void validaStatusPausaCurta() {
+		if(this.status.equals(StatusUsuario.PAUSA_CURTA)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Curta!");
+		}
+		
+	}
+
+	public void mudaStatusPausaLonga(UUID idUsuario) {
+		pertenceAoUsuario(idUsuario);
+		validaStatusPausaLonga();
+		this.status = StatusUsuario.PAUSA_LONGA;
+	}
+
+	private void validaStatusPausaLonga() {
+		if(this.status.equals(StatusUsuario.PAUSA_LONGA)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em Pausa Longa!");
 		}
 	}
 }
