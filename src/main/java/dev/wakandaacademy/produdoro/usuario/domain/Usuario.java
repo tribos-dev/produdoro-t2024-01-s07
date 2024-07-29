@@ -3,14 +3,22 @@ package dev.wakandaacademy.produdoro.usuario.domain;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.pomodoro.domain.ConfiguracaoPadrao;
 import dev.wakandaacademy.produdoro.usuario.application.api.UsuarioNovoRequest;
-import lombok.*;
+import java.util.UUID;
+
+import javax.validation.constraints.Email;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 
-import javax.validation.constraints.Email;
-import java.util.UUID;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,6 +60,11 @@ public class Usuario {
 	private void mudaStatusParaFoco() {
 		this.status = StatusUsuario.FOCO;
 	}
+    public void validaUsuario(UUID idUsuario) {
+		if(!this.idUsuario.equals(idUsuario)) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
+		}
+	}
 
 	private void pertenceAoUsuario(UUID idUsuario) {
 		if(!this.idUsuario.equals(idUsuario)) {
@@ -84,4 +97,3 @@ public class Usuario {
 		}
 	}
 }
-

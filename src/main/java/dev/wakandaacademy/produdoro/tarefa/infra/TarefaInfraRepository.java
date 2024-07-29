@@ -1,5 +1,13 @@
 package dev.wakandaacademy.produdoro.tarefa.infra;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
@@ -8,16 +16,10 @@ import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-import java.util.UUID;
 
 
 @Repository
@@ -71,6 +73,14 @@ public class TarefaInfraRepository implements TarefaRepository {
         Query query = Query.query(Criteria.where("idUsuario").is(usuario.getIdUsuario()));
         Update updateUsuario = Update.update("status", usuario.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
+    }
+    
+    @Override
+    public List<Tarefa> visualizaTodasAsTarefa(UUID idUsuario) {
+        log.info("[inicial] - TarefaInfraRepository - visualizaTodasAsTarefa");
+        List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllByIdUsuario(idUsuario);
+        log.info("[finaliza] - TarefaInfraRepository - visualizaTodasAsTarefa");
+        return tarefas;
     }
     
 	@Override

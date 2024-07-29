@@ -2,6 +2,7 @@ package dev.wakandaacademy.produdoro.tarefa.application.service;
 
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadoResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import java.util.List;
 
 @Service
 @Log4j2
@@ -54,6 +57,34 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - incrementaPomodoro");
     }
 
+    @Override
+    public List<TarefaDetalhadoResponse> visualizaTodasAsTarefas(String usuario, UUID idUsuario) {
+        log.info("[inicial] - TarefaApplicationService - visualizaTodasAsTarefas");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        usuarioPorEmail.validaUsuario(idUsuario);
+        List<Tarefa> tarefas = tarefaRepository.visualizaTodasAsTarefa(idUsuario);
+        log.info("[finaliza] - TarefaApplicationService - visualizaTodasAsTarefas");
+        return TarefaDetalhadoResponse.converte(tarefas);
+    }
+    private Tarefa detalhaTarefaBadRequest(String usuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - detalhaTarefa");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        log.info("[usuarioPorEmail] {}", usuarioPorEmail);
+        Tarefa tarefa =
+                tarefaRepository.buscaTarefaPorId(idTarefa).orElseThrow(() -> APIException.build(HttpStatus.BAD_REQUEST, "Tarefa não encontrada!"));
+        tarefa.pertenceAoUsuario(usuarioPorEmail);
+        log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
+        return tarefa;
+    }
+
+    @Override
+    public void concluiTarefa(String usuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - concluiTarefa");
+        Tarefa tarefa = detalhaTarefaBadRequest(usuario, idTarefa);
+        tarefa.concluiTarefa();
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - concluiTarefa");
+    }
     
 	@Override
 	public void defineTarefaComoAtiva(UUID idTarefa, String usuarioEmail) {
