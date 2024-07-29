@@ -16,6 +16,5 @@ public interface TarefaSpringMongoDBRepository extends MongoRepository<Tarefa, U
     List<Tarefa> findAllByIdUsuario(UUID idUsuario); 
     @Query("{ 'statusAtivacao' : ?0, 'idUsuario' : ?1 }")
     Optional<Tarefa> buscaTarefaJaAtiva(StatusAtivacaoTarefa statusAtivacaoTarefa, UUID idUsuario);
-	void saveAll(List<Object> tarefasAtualizadas);
     Integer countByIdUsuario(UUID idUsuario);
 }
