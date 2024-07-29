@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -96,6 +97,21 @@ class TarefaApplicationServiceTest {
 		assertEquals(HttpStatus.NOT_FOUND, e.getStatusException());
 		verify(tarefaRepository, never()).buscaTarefaJaAtiva(usuario.getIdUsuario());
 		verify(tarefaRepository, never()).salva(any(Tarefa.class));
+	}
+
+	@Test
+	void deveIcrementarPomodoroAUmaTarefa() {
+
+		Usuario usuario = DataHelper.createUsuario();
+		Tarefa tarefa = DataHelper.createTarefa();
+
+		when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+		when(tarefaRepository.buscaTarefaPorId(any(UUID.class))).thenReturn(Optional.of(tarefa));
+
+		tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa());
+
+		verify(tarefaRepository, times(1)).salva(any(Tarefa.class));
+		verify(tarefaRepository, times(1)).processaStatusEContadorPomodoro(usuario);
 	}
 
 	private static Tarefa getTarefaAtiva(Usuario usuario) {
