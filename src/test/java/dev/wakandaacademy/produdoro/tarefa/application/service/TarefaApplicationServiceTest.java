@@ -49,7 +49,8 @@ class TarefaApplicationServiceTest {
     @Test
     void deveRetornarIdTarefaNovaCriada() {
         TarefaRequest request = getTarefaRequest();
-        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request));
+        Integer novaPosicao = tarefaRepository.contarTarefas(getTarefaRequest().getIdUsuario());
+        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request, novaPosicao));
 
         TarefaIdResponse response = tarefaApplicationService.criaNovaTarefa(request);
 
@@ -147,6 +148,14 @@ class TarefaApplicationServiceTest {
 		return Tarefa.builder().contagemPomodoro(1).idTarefa(UUID.fromString("4c70c27a-446c-4506-b666-1067085d8d85"))
 				.idUsuario(usuario.getIdUsuario()).descricao("Descricao da tarefa")
 				.statusAtivacao(StatusAtivacaoTarefa.ATIVA).build();
-	}    
+	}  
+	
+	@Test
+	void deletaTarefasConcluidasFalha() {
+		String email = "janegomes@gmail.com";
+		when(usuarioRepository.buscaUsuarioPorEmail(email)).thenThrow(APIException.build(HttpStatus.BAD_REQUEST, "Usuario não encontrado!"));
+		assertThrows(APIException.class, () -> tarefaApplicationService.deletaTarefasConcluidas(email, UUID.randomUUID()));
+		verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(email);
+	}
     
 }
