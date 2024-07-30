@@ -58,5 +58,9 @@ public interface TarefaAPI {
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     void defineTarefaComoAtiva(@PathVariable UUID idTarefa, 
     		@RequestHeader(name = "Authorization", required = true) String token);
-    
+
+    @DeleteMapping("/deleta-tarefa/{idTarefa}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void deletaTarefa(@PathVariable UUID idTarefa,
+                      @RequestHeader(name = "Authorization", required = true) String token);
 }
