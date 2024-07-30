@@ -12,6 +12,10 @@ public interface TarefaRepository {
     Optional<Tarefa> buscaTarefaPorId(UUID idTarefa);
     void processaStatusEContadorPomodoro(Usuario usuario);
     List<Tarefa> visualizaTodasAsTarefa(UUID idUsuario);
-	Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario);
+    Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario);
     void deletaTarefa(Tarefa tarefa);
+    List<Tarefa> buscaTarefasConcluidas(UUID idUsuario);
+    void deletaVariasTarefas(List<Tarefa> tarefasconcluidas);
+    void atualizaPosicoesDaTarefa(List<Tarefa> tarefasDoUsuario);
+    Integer contarTarefas(UUID idUsuario);
 }

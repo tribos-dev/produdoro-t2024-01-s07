@@ -2,6 +2,8 @@ package dev.wakandaacademy.produdoro.tarefa.infra;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import java.util.List;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -20,7 +23,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-
 
 @Repository
 @Log4j2
@@ -42,7 +44,7 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - salva");
         return tarefa;
     }
-    
+
     @Override
     public Optional<Tarefa> buscaTarefaPorId(UUID idTarefa) {
         log.info("[inicia] TarefaInfraRepository - buscaTarefaPorId");
@@ -74,7 +76,7 @@ public class TarefaInfraRepository implements TarefaRepository {
         Update updateUsuario = Update.update("status", usuario.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
     }
-    
+
     @Override
     public List<Tarefa> visualizaTodasAsTarefa(UUID idUsuario) {
         log.info("[inicial] - TarefaInfraRepository - visualizaTodasAsTarefa");
@@ -82,15 +84,15 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] - TarefaInfraRepository - visualizaTodasAsTarefa");
         return tarefas;
     }
-    
-	@Override
-	public Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario) {
-		log.info("[inicia] TarefaInfraRepository - buscaTarefaJaAtiva");
-		Optional<Tarefa> tarefaJaAtiva = 
-				tarefaSpringMongoDBRepository.buscaTarefaJaAtiva(StatusAtivacaoTarefa.ATIVA, idUsuario);
-		log.info("[finaliza] TarefaInfraRepository - buscaTarefaJaAtiva");
-		return tarefaJaAtiva;
-	}
+
+    @Override
+    public Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - buscaTarefaJaAtiva");
+        Optional<Tarefa> tarefaJaAtiva = tarefaSpringMongoDBRepository.buscaTarefaJaAtiva(StatusAtivacaoTarefa.ATIVA,
+                idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - buscaTarefaJaAtiva");
+        return tarefaJaAtiva;
+    }
 
     @Override
     public void deletaTarefa(Tarefa tarefa) {
@@ -99,4 +101,50 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - deletaTarefa");
     }
 
+    @Override
+    public List<Tarefa> buscaTarefasConcluidas(UUID idUsuario) {
+        log.info("[inicial] - TarefaInfraRepository - buscaTarefasConcluidas");
+        Query query = new Query();
+        query.addCriteria(Criteria.where("idUsuario").is(idUsuario).and("status").is(StatusTarefa.CONCLUIDA));
+        List<Tarefa> tarefasConcluidas = mongoTemplate.find(query, Tarefa.class);
+        log.info("[finaliza] - TarefaInfraRepository - buscaTarefasConcluidas");
+        return tarefasConcluidas;
+    }
+
+    @Override
+    public void deletaVariasTarefas(List<Tarefa> tarefasconcluidas) {
+        log.info("[inicia] TarefaInfraRepository - deletaVariasTarefas");
+        tarefaSpringMongoDBRepository.deleteAll(tarefasconcluidas);
+        log.info("[finaliza] TarefaInfraRepository - deletaVariasTarefas");
+
+    }
+
+    @Override
+    public void atualizaPosicoesDaTarefa(List<Tarefa> tarefasDoUsuario) {
+        log.info("[inicia] TarefaInfraRepository - atualizaPosicoesDaTarefa");
+        int tamanhoDaLista = tarefasDoUsuario.size();
+        List<Tarefa> tarefasAtualizadas = IntStream.range(0, tamanhoDaLista)
+                .mapToObj(i -> atualizaTarefaComNovaPosicao(tarefasDoUsuario.get(i), i)).collect(Collectors.toList());
+        salvaVariasTarefas(tarefasAtualizadas);
+        log.info("[finaliza] TarefaInfraRepository - atualizaPosicoesDaTarefa");
+
+    }
+
+    @Override
+    public Integer contarTarefas(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - contarTarefas");
+        Integer quantidadeTarefas = tarefaSpringMongoDBRepository.countByIdUsuario(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - contarTarefas");
+        return quantidadeTarefas;
+    }
+
+    private void salvaVariasTarefas(List<Tarefa> tarefasAtualizadas) {
+        tarefaSpringMongoDBRepository.saveAll(tarefasAtualizadas);
+
+    }
+
+    private Tarefa atualizaTarefaComNovaPosicao(Tarefa tarefa, int novaPosicao) {
+        tarefa.atualizaPosicao(novaPosicao);
+        return tarefa;
+    }
 }

@@ -29,7 +29,8 @@ public class TarefaApplicationService implements TarefaService {
 	@Override
 	public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
 		log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-		Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest));
+		Integer novaPosicao = tarefaRepository.contarTarefas(tarefaRequest.getIdUsuario());
+		Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest, novaPosicao));
 		log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
 		return TarefaIdResponse.builder().idTarefa(tarefaCriada.getIdTarefa()).build();
 	}
@@ -131,4 +132,20 @@ public class TarefaApplicationService implements TarefaService {
 		return tarefa;
 	}
 
+	@Override
+	public void deletaTarefasConcluidas(String email, UUID idUsuario) {
+		log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
+		Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(email);
+		Usuario usuario = usuarioRepository.buscaUsuarioPorId(idUsuario);
+		usuario.pertenceAoUsuario(usuarioPorEmail);
+		List<Tarefa>tarefasConcluidas = tarefaRepository.buscaTarefasConcluidas(usuario.getIdUsuario());
+		if(tarefasConcluidas.isEmpty()) {
+			throw APIException.build(HttpStatus.NOT_FOUND, "Usuário não possui nenhuma tarefa concluída!");
+		}
+		tarefaRepository.deletaVariasTarefas(tarefasConcluidas);
+		List<Tarefa>tarefasDoUsuario = tarefaRepository.visualizaTodasAsTarefa(usuario.getIdUsuario());
+		tarefaRepository.atualizaPosicoesDaTarefa(tarefasDoUsuario);
+        log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");	
+		
+	}
 }
